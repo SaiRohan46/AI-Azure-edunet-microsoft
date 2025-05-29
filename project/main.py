@@ -37,21 +37,41 @@ def bring_window_to_front(window_name):
         try:
             win32gui.ShowWindow(hwnd,win32con.SW_RESTORE)
             win32gui.SetForegroundWindow(hwnd)
-        except Exception as e:
-            print(f"[!] could not bring window to front: {e}")
+            win32gui.SetWindowPos(
+                hwnd,
+                win32con.HWND_TOPMOST,
+                0,0,0,0,
+                win32con.SWP_NOMOVE | win32con.SWP_NOSIZE
+            )
+        except:
+            pyautogui.keyDown('alt')
+            pyautogui.press('tab')
+            pyautogui.keyUp('alt')
+    else:
+        print("[!] could not bring window to front")
+
 bring_window_to_front(window_name)
 
 hand_detected_last_time=time.time()
+scroll_delay=time.time()
 
 while True:
     success,img=cap.read()
+    if not success:
+        print("[ERROR] Frame capture failed")
+        continue
+
     img=detector.findHands(img)
     lmList,bbox=detector.findPosition(img)
+
     if len(lmList)!=0:
         hand_detected_last_time=time.time()
-        x1,y1=lmList[8][1:]
-        x2,y2=lmList[12][1:]
-        fingers=detector.fingersUp()
+        try:
+            x1,y1=lmList[8][1:]
+            x2,y2=lmList[12][1:]
+            fingers=detector.fingersUp()
+        except: 
+            continue
 
 
         if fingers[1]==1 and fingers[2]==0:
@@ -69,9 +89,10 @@ while True:
                 cv2.circle(img,(lineInfo[4],lineInfo[5]),15,(0,255,0),cv2.FILLED)
                 pyautogui.click()
 
-        if fingers==[0,1,1,0,0]:
+        if fingers==[0,1,1,0,0] and (time.time()-scroll_delay>0.2):
             if abs(y2-prev_y)>10:
                 pyautogui.scroll(30 if y2<prev_y else -30)
+                scroll_delay=time.time()
             prev_y=y2
 
         if fingers[0]==1 and fingers[1]==1:
