@@ -90,7 +90,7 @@ To build an **AI-powered virtual mouse** that enables users to control the syste
    ```
 
 ---
-
+[Watch the Demo video](demo.mp4)
 ## 🎓 Developed As Part Of
 
 **AI Azure Internship – May 2025**
